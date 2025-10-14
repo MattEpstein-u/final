@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival Prediction - Real Data ML</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚢 Titanic Survival Prediction</h1>
+            <p>Machine Learning with Stacking Algorithm - Real Dataset</p>
+        </div>
+        
+        <div class="content">
+            <div class="control-panel">
+                <button id="trainButton" class="train-button">
+                    Train Stacking Model with Real Data
+                </button>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing real Titanic dataset...</p>
+                </div>
+                <div id="messages"></div>
+            </div>
+            
+            <div class="results" id="results">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="accuracy">-</div>
+                        <div class="metric-label">Model Accuracy</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="dataSize">-</div>
+                        <div class="metric-label">Total Records</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="trainSize">-</div>
+                        <div class="metric-label">Training Set</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="testSize">-</div>
+                        <div class="metric-label">Test Set</div>
+                    </div>
+                </div>
+                
+                <div class="visualization-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">Confusion Matrix</div>
+                        <div id="confusionMatrix"></div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Feature Importance</div>
+                        <div id="featureImportance"></div>
+                    </div>
+                </div>
+                
+                <div class="chart-container" style="margin-top: 30px;">
+                    <div class="chart-title">Prediction Accuracy Distribution</div>
+                    <div id="predictionAccuracy"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script-real.js"></script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic ML Demo - Live Server Version</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚢 Titanic Survival Prediction</h1>
+            <p>Machine Learning with Stacking Algorithm - Demo Version</p>
+            <div class="mode-indicator">
+                <small>📺 Live Server Demo - Using Sample Data</small>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="control-panel">
+                <button id="trainButton" class="train-button">
+                    Train Stacking Model (Demo)
+                </button>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Training model... Please wait</p>
+                </div>
+                <div id="messages"></div>
+            </div>
+            
+            <div class="results" id="results">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="accuracy">-</div>
+                        <div class="metric-label">Model Accuracy</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="dataSize">-</div>
+                        <div class="metric-label">Total Records</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="trainSize">-</div>
+                        <div class="metric-label">Training Set</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="testSize">-</div>
+                        <div class="metric-label">Test Set</div>
+                    </div>
+                </div>
+                
+                <div class="visualization-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">Confusion Matrix</div>
+                        <div id="confusionMatrix"></div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Feature Importance</div>
+                        <div id="featureImportance"></div>
+                    </div>
+                </div>
+                
+                <div class="chart-container" style="margin-top: 30px;">
+                    <div class="chart-title">Prediction Accuracy Distribution</div>
+                    <div id="predictionAccuracy"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Force demo mode for this version
+        class TitanicMLDemo {
+            constructor() {
+                this.trainButton = document.getElementById('trainButton');
+                this.loading = document.getElementById('loading');
+                this.results = document.getElementById('results');
+                this.messages = document.getElementById('messages');
+                
+                this.init();
+            }
+            
+            init() {
+                this.trainButton.addEventListener('click', () => this.trainModel());
+            }
+            
+            showMessage(message, type = 'info') {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = type;
+                messageDiv.textContent = message;
+                this.messages.innerHTML = '';
+                this.messages.appendChild(messageDiv);
+            }
+            
+            async trainModel() {
+                try {
+                    this.trainButton.disabled = true;
+                    this.loading.style.display = 'block';
+                    this.results.style.display = 'none';
+                    this.showMessage('Loading sample dataset and training model...', 'success');
+                    
+                    // Simulate training time
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    const data = {
+                        success: true,
+                        data_size: 891,
+                        train_size: 712,
+                        test_size: 179,
+                        accuracy: 0.8324
+                    };
+                    
+                    this.updateMetrics(data);
+                    await this.createVisualizations();
+                    this.results.style.display = 'block';
+                    this.showMessage('Demo model trained successfully! This shows how the real ML algorithm would work.', 'success');
+                    
+                } catch (error) {
+                    this.showMessage(`Error: ${error.message}`, 'error');
+                } finally {
+                    this.trainButton.disabled = false;
+                    this.loading.style.display = 'none';
+                }
+            }
+            
+            updateMetrics(data) {
+                document.getElementById('accuracy').textContent = `${(data.accuracy * 100).toFixed(1)}%`;
+                document.getElementById('dataSize').textContent = data.data_size;
+                document.getElementById('trainSize').textContent = data.train_size;
+                document.getElementById('testSize').textContent = data.test_size;
+            }
+            
+            async createVisualizations() {
+                const confusionMatrix = [[98, 13], [17, 51]];
+                const featureImportance = [
+                    { feature: 'Fare', importance: 0.2845 },
+                    { feature: 'Age', importance: 0.2156 },
+                    { feature: 'Sex', importance: 0.1923 },
+                    { feature: 'Pclass', importance: 0.1634 },
+                    { feature: 'SibSp', importance: 0.0834 },
+                    { feature: 'Parch', importance: 0.0423 },
+                    { feature: 'Embarked', importance: 0.0185 }
+                ];
+                
+                // Generate sample prediction data
+                const actual = Array.from({length: 179}, () => Math.random() > 0.5 ? 1 : 0);
+                const predicted = actual.map(val => Math.random() < 0.83 ? val : 1 - val);
+                
+                this.createConfusionMatrix(confusionMatrix);
+                this.createFeatureImportance(featureImportance);
+                this.createPredictionAccuracy({actual, predicted});
+            }
+            
+            createConfusionMatrix(confusionMatrix) {
+                const data = [{
+                    z: confusionMatrix,
+                    x: ['Predicted: Not Survived', 'Predicted: Survived'],
+                    y: ['Actual: Survived', 'Actual: Not Survived'],
+                    type: 'heatmap',
+                    colorscale: 'Blues',
+                    showscale: true,
+                    text: confusionMatrix.map(row => row.map(val => val.toString())),
+                    texttemplate: '%{text}',
+                    textfont: { size: 16, color: 'white' }
+                }];
+                
+                const layout = {
+                    margin: { t: 20, r: 20, b: 60, l: 80 },
+                    font: { size: 12 },
+                    height: 300
+                };
+                
+                Plotly.newPlot('confusionMatrix', data, layout, {responsive: true});
+            }
+            
+            createFeatureImportance(featureImportance) {
+                const features = featureImportance.map(item => item.feature);
+                const importance = featureImportance.map(item => item.importance);
+                
+                const data = [{
+                    x: importance,
+                    y: features,
+                    type: 'bar',
+                    orientation: 'h',
+                    marker: {
+                        color: importance,
+                        colorscale: 'Viridis',
+                        colorbar: {title: 'Importance'}
+                    }
+                }];
+                
+                const layout = {
+                    margin: { t: 20, r: 20, b: 40, l: 80 },
+                    font: { size: 12 },
+                    height: 300,
+                    xaxis: { title: 'Importance' }
+                };
+                
+                Plotly.newPlot('featureImportance', data, layout, {responsive: true});
+            }
+            
+            createPredictionAccuracy(comparison) {
+                const correct = [];
+                const incorrect = [];
+                
+                comparison.actual.forEach((actual, index) => {
+                    const predicted = comparison.predicted[index];
+                    if (actual === predicted) {
+                        correct.push(index);
+                    } else {
+                        incorrect.push(index);
+                    }
+                });
+                
+                const data = [
+                    {
+                        x: correct,
+                        y: correct.map(() => 1),
+                        name: 'Correct Predictions',
+                        type: 'scatter',
+                        mode: 'markers',
+                        marker: { color: '#28a745', size: 8 }
+                    },
+                    {
+                        x: incorrect,
+                        y: incorrect.map(() => 0),
+                        name: 'Incorrect Predictions',
+                        type: 'scatter',
+                        mode: 'markers',
+                        marker: { color: '#dc3545', size: 8 }
+                    }
+                ];
+                
+                const layout = {
+                    margin: { t: 20, r: 20, b: 60, l: 60 },
+                    font: { size: 12 },
+                    height: 300,
+                    xaxis: { title: 'Test Sample Index' },
+                    yaxis: { 
+                        title: 'Prediction Result',
+                        tickvals: [0, 1],
+                        ticktext: ['Incorrect', 'Correct']
+                    },
+                    showlegend: true
+                };
+                
+                Plotly.newPlot('predictionAccuracy', data, layout, {responsive: true});
+            }
+        }
+        
+        // Initialize the demo when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TitanicMLDemo();
+        });
+    </script>
+</body>
+</html>
